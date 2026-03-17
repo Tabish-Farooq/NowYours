@@ -8,22 +8,38 @@ import {
  Keyboard
 } from 'react-native'
 
-import React, { useState, useRef } from 'react'
+import React, { useRef } from 'react'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 import InputField from '../components/InputField'
 import { Colors } from '../theme/Colors'
 import SubmitBtn from '../components/SubmitBtn'
 
+import { Formik } from 'formik'
+import * as Yup from 'yup'
+
+const RegisterSchema = Yup.object({
+
+ name: Yup.string().required("*Name is required"),
+
+ email: Yup.string()
+  .email("*Enter valid email")
+  .required("*Email is required"),
+
+ phone: Yup.string().required("*Phone is required"),
+
+ password: Yup.string()
+  .min(6, "*Password must be 6 characters")
+  .required("*Password is required"),
+
+ confirmPassword: Yup.string()
+  .oneOf([Yup.ref('password')], "*Passwords must match")
+  .required("*Confirm your password")
+
+})
+
 const RegisterScreen = ({ navigation }) => {
 
- const [name, setName] = useState("")
- const [email, setEmail] = useState("")
- const [phone, setPhone] = useState("")
- const [password, setPassword] = useState("")
- const [confirmPassword, setConfirmPassword] = useState("")
-
- // refs for focus jump
  const emailRef = useRef()
  const phoneRef = useRef()
  const passwordRef = useRef()
@@ -41,76 +57,146 @@ const RegisterScreen = ({ navigation }) => {
     <View style={styles.mainView}>
 
      <View style={styles.circleView}>
-
       <Image
        source={require('../assets/bootsplash.png')}
        style={styles.circleImage}
       />
-
      </View>
 
      <Text style={styles.createAccount}>Create your account</Text>
 
-     <View style={styles.inputView}>
+     <Formik
+      initialValues={{
+       name: "",
+       email: "",
+       phone: "",
+       password: "",
+       confirmPassword: ""
+      }}
 
-      <InputField
-       placeholder="Full Name"
-       data={name}
-       setData={setName}
-       icon="person-outline"
-       returnKeyType="next"
-       onSubmitEditing={() => emailRef.current.focus()}
-      />
+      validationSchema={RegisterSchema}
 
-      <InputField
-       ref={emailRef}
-       placeholder="Email"
-       data={email}
-       setData={setEmail}
-       icon="mail-outline"
-       returnKeyType="next"
-       onSubmitEditing={() => phoneRef.current.focus()}
-      />
+      onSubmit={(values) => {
+       console.log(values)
+       navigation.navigate("Login")
+      }}
+     >
 
-      <InputField
-       ref={phoneRef}
-       placeholder="Phone Number"
-       data={phone}
-       setData={setPhone}
-       icon="call-outline"
-       returnKeyType="next"
-       onSubmitEditing={() => passwordRef.current.focus()}
-      />
+      {({
+       handleChange,
+       handleSubmit,
+       values,
+       errors
+      }) => (
 
-      <InputField
-       ref={passwordRef}
-       placeholder="Password"
-       data={password}
-       setData={setPassword}
-       icon="lock-closed-outline"
-       returnKeyType="next"
-       onSubmitEditing={() => confirmPasswordRef.current.focus()}
-      />
+       <>
+        <View style={styles.inputView}>
 
-      <InputField
-       ref={confirmPasswordRef}
-       placeholder="Confirm Password"
-       data={confirmPassword}
-       setData={setConfirmPassword}
-       icon="lock-closed-outline"
-       returnKeyType="done"
-       onSubmitEditing={Keyboard.dismiss}
-      />
+         {/* NAME */}
+         <InputField
+          placeholder="Full Name"
+          data={values.name}
+          setData={handleChange("name")}
+          icon="person-outline"
+          returnKeyType="next"
+          onSubmitEditing={() => emailRef.current.focus()}
+          noMargin={!!errors.name}
+         />
 
-     </View>
+         {errors.name && (
+          <View style={styles.errorContainer}>
+           <Text style={styles.errorText}>{errors.name}</Text>
+          </View>
+         )}
 
-     <SubmitBtn
-      text={"Register"}
-      style={{ marginTop: 10, width: '80%' }}
-      backgroundColor={Colors.secondary}
-      textColor="white"
-      onPress={() => navigation.navigate("Register")}
-     />
+         {/* EMAIL */}
+         <InputField
+          ref={emailRef}
+          placeholder="Email"
+          data={values.email}
+          setData={handleChange("email")}
+          icon="mail-outline"
+          returnKeyType="next"
+          onSubmitEditing={() => phoneRef.current.focus()}
+          noMargin={!!errors.email}
+         />
+
+         {errors.email && (
+          <View style={styles.errorContainer}>
+           <Text style={styles.errorText}>{errors.email}</Text>
+          </View>
+         )}
+
+         {/* PHONE */}
+         <InputField
+          ref={phoneRef}
+          placeholder="Phone Number"
+          data={values.phone}
+          setData={handleChange("phone")}
+          icon="call-outline"
+          returnKeyType="next"
+          onSubmitEditing={() => passwordRef.current.focus()}
+          noMargin={!!errors.phone}
+         />
+
+         {errors.phone && (
+          <View style={styles.errorContainer}>
+           <Text style={styles.errorText}>{errors.phone}</Text>
+          </View>
+         )}
+
+         {/* PASSWORD */}
+         <InputField
+          ref={passwordRef}
+          placeholder="Password"
+          data={values.password}
+          setData={handleChange("password")}
+          icon="lock-closed-outline"
+          secureTextEntry
+          returnKeyType="next"
+          onSubmitEditing={() => confirmPasswordRef.current.focus()}
+          noMargin={!!errors.password}
+         />
+
+         {errors.password && (
+          <View style={styles.errorContainer}>
+           <Text style={styles.errorText}>{errors.password}</Text>
+          </View>
+         )}
+
+         {/* CONFIRM PASSWORD */}
+         <InputField
+          ref={confirmPasswordRef}
+          placeholder="Confirm Password"
+          data={values.confirmPassword}
+          setData={handleChange("confirmPassword")}
+          icon="lock-closed-outline"
+          secureTextEntry
+          returnKeyType="done"
+          onSubmitEditing={Keyboard.dismiss}
+          noMargin={!!errors.confirmPassword}
+         />
+
+         {errors.confirmPassword && (
+          <View style={styles.errorContainer}>
+           <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+          </View>
+         )}
+
+        </View>
+
+        <SubmitBtn
+         text={"Register"}
+         style={{ marginTop: 10, width: '80%' }}
+         backgroundColor={Colors.secondary}
+         textColor="white"
+         onPress={handleSubmit}
+        />
+
+       </>
+      )}
+
+     </Formik>
 
      <View style={styles.loginRow}>
 
@@ -136,6 +222,11 @@ const RegisterScreen = ({ navigation }) => {
 }
 
 const styles = StyleSheet.create({
+
+ mainView: {
+  backgroundColor: '#ffffff',
+  flex: 1
+ },
 
  circleView: {
   backgroundColor: '#FFFFFF',
@@ -164,13 +255,18 @@ const styles = StyleSheet.create({
   marginTop: 5
  },
 
- mainView: {
-  backgroundColor: '#ffffff',
-  flex: 1
- },
-
  inputView: {
   marginTop: 25
+ },
+
+ errorContainer: {
+  marginLeft: 25,
+  marginBottom: 4
+ },
+
+ errorText: {
+  color: 'red',
+  fontSize: 12
  },
 
  loginRow: {

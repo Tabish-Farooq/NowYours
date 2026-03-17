@@ -11,12 +11,16 @@ const InputField = forwardRef(({
   icon,
   returnKeyType,
   onSubmitEditing,
-  secureTextEntry
+  secureTextEntry,
+  noMargin
 }, ref) => {
 
   return (
 
-    <View style={styles.inputContainer}>
+    <View style={[
+      styles.inputContainer,
+      noMargin && { marginBottom: 0 }   // ⭐ important change
+    ]}>
 
       <Icon
         name={icon}
@@ -55,7 +59,7 @@ const styles = StyleSheet.create({
     borderWidth:1,
     borderColor:Colors.placeholder,
     paddingHorizontal:10,
-    marginBottom:20
+    marginBottom:20   // default spacing
   },
 
   icon:{

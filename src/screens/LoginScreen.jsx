@@ -1,13 +1,17 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import React from 'react'
 import InputField from '../components/InputField'
 import { Colors } from '../theme/Colors'
 import SubmitBtn from '../components/SubmitBtn'
+import { Formik } from 'formik'
+import * as Yup from 'yup'
+
+const LoginSchema = Yup.object({
+  email: Yup.string().required("*Email is required"),
+  password: Yup.string().required("*Password is required")
+})
 
 const LoginScreen = ({ navigation }) => {
-
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
 
   return (
     <View style={styles.mainView}>
@@ -21,45 +25,80 @@ const LoginScreen = ({ navigation }) => {
 
       <Text style={styles.createAccount}>Welcome Back</Text>
 
-      {/* Input Fields */}
-      <View style={styles.inputView}>
+      <Formik
+        initialValues={{ email: '', password: '' }}
+        validationSchema={LoginSchema}
+        onSubmit={(values) => {
+          console.log(values)
+          navigation.navigate("Register")
+        }}
+      >
 
-        <InputField
-          placeholder="Email"
-          data={email}
-          setData={setEmail}
-          icon="mail-outline"
-        />
+        {({ handleChange, handleSubmit, values, errors }) => (
 
-        <InputField
-          placeholder="Password"
-          data={password}
-          setData={setPassword}
-          icon="lock-closed-outline"
-        />
+          <>
+            <View style={styles.inputView}>
 
-        <View style={styles.forgotRow}>
-          <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
-            <Text style={styles.forgotText}>Forgot Password?</Text>
-          </TouchableOpacity>
-        </View>
+              {/* EMAIL */}
+             <InputField
+  placeholder="Email"
+  data={values.email}
+  setData={handleChange("email")}
+  icon="mail-outline"
+  noMargin={!!errors.email}
+/>
 
-      </View>
+              {errors.email && (
+                <View style={styles.errorContainer}>
+                  <Text style={styles.errorText}>
+                    {errors.email}
+                  </Text>
+                </View>
+              )}
 
-      <SubmitBtn
-        text={"Login"}
-        style={{ marginTop: 10, width: '80%' }}
-        backgroundColor={Colors.primary}
-        textColor="white"
-        onPress={() => navigation.navigate("Register")}
-      />
+              {/* PASSWORD */}
+              <InputField
+                placeholder="Password"
+                data={values.password}
+                setData={handleChange("password")}
+                icon="lock-closed-outline"
+                noMargin={!!errors.email}
+              />
+
+              {errors.password && (
+                <View style={styles.errorContainer}>
+                  <Text style={styles.errorText}>
+                    {errors.password}
+                  </Text>
+                </View>
+              )}
+
+              <View style={styles.forgotRow}>
+                <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
+                  <Text style={styles.forgotText}>Forgot Password?</Text>
+                </TouchableOpacity>
+              </View>
+
+            </View>
+
+            <SubmitBtn
+              text={"Login"}
+              style={{ marginTop: 10, width: '80%' }}
+              backgroundColor={Colors.primary}
+              textColor="white"
+              onPress={handleSubmit}
+            />
+
+          </>
+        )}
+
+      </Formik>
 
       <View style={styles.orContainer}>
         <View style={styles.line}></View>
         <Text style={styles.orText}>OR</Text>
         <View style={styles.line}></View>
       </View>
-
 
       {/* GOOGLE BUTTON */}
       <View style={styles.googleWrapper}>
@@ -78,15 +117,14 @@ const LoginScreen = ({ navigation }) => {
             borderColor: Colors.placeholder,
             backgroundColor: '#FFFFFF',
             paddingLeft: 15,
-            marginBottom:5
+            marginBottom: 5
           }}
           backgroundColor="#FFFFFF"
-          textColor={Colors.placeholder}
+          textColor="black"
           onPress={() => navigation.navigate("Register")}
         />
 
       </View>
-
 
       <View style={styles.loginRow}>
         <Text style={styles.already}>
@@ -142,11 +180,22 @@ const styles = StyleSheet.create({
     marginTop: 25
   },
 
+  errorContainer: {
+    justifyContent: 'center',
+    marginLeft: 25,
+    marginBottom: 4
+  },
+
+  errorText: {
+    color: 'red',
+    fontSize: 12
+  },
+
   forgotRow: {
     alignItems: 'flex-end',
     width: '90%',
     alignSelf: 'center',
-    marginTop: -13,
+    marginTop: 2,
     marginBottom: 20
   },
 
@@ -195,8 +244,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 5
   },
-
-  /* GOOGLE BUTTON STYLES */
 
   googleWrapper: {
     width: '80%',
