@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
-import InputField from '../components/InputField'
-import { Colors } from '../theme/Colors'
-import SubmitBtn from '../components/SubmitBtn'
+import InputField from '../../components/InputField'
+import { Colors } from '../../theme/Colors'
+import SubmitBtn from '../../components/SubmitBtn'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 
@@ -18,7 +18,7 @@ const LoginScreen = ({ navigation }) => {
 
       <View style={styles.circleView}>
         <Image
-          source={require('../assets/bootsplash.png')}
+          source={require('../../assets/bootsplash.png')}
           style={styles.circleImage}
         />
       </View>
@@ -30,7 +30,7 @@ const LoginScreen = ({ navigation }) => {
         validationSchema={LoginSchema}
         onSubmit={(values) => {
           console.log(values)
-          navigation.navigate("Register")
+          navigation.replace("MainApp")
         }}
       >
 
@@ -62,7 +62,7 @@ const LoginScreen = ({ navigation }) => {
                 data={values.password}
                 setData={handleChange("password")}
                 icon="lock-closed-outline"
-                noMargin={!!errors.email}
+                noMargin={!!errors.password}
               />
 
               {errors.password && (
@@ -104,7 +104,7 @@ const LoginScreen = ({ navigation }) => {
       <View style={styles.googleWrapper}>
 
         <Image
-          source={require('../assets/googleIcon.png')}
+          source={require('../../assets/googleIcon.png')}
           style={styles.googleIcon}
         />
 

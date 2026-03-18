@@ -1,13 +1,14 @@
 import { View, StyleSheet, ImageBackground, Text, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import SubmitBtn from '../components/SubmitBtn'
-import { Colors } from '../theme/Colors'
+import SubmitBtn from '../../components/SubmitBtn'
+import { Colors } from '../../theme/Colors'
 
-const background = require('../assets/Background.png')
+const background = require('../../assets/Background.png')
 
 const StartingScreen = ({ navigation }) => {
 
-    const [loaded, setLoaded] = useState(false);
+    // ✅ FIX: state define karo
+    const [loaded, setLoaded] = useState(false)
 
     useEffect(() => {
 
@@ -15,17 +16,18 @@ const StartingScreen = ({ navigation }) => {
 
             await Image.prefetch(
                 Image.resolveAssetSource(background).uri
-            );
+            )
 
-            setLoaded(true);
-        };
+            setLoaded(true)
+        }
 
-        loadImages();
+        loadImages()
 
-    }, []);
+    }, [])
 
+    // ✅ jab tak image load nahi hoti
     if (!loaded) {
-        return null;
+        return null
     }
 
     return (
@@ -40,7 +42,7 @@ const StartingScreen = ({ navigation }) => {
 
                 <View style={styles.circleView}>
                     <Image
-                        source={require('../assets/bootsplash.png')}
+                        source={require('../../assets/bootsplash.png')}
                         style={styles.circleImage}
                     />
                 </View>

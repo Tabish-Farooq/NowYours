@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {Text} from 'react-native';
 import BootSplash from "react-native-bootsplash";
-import StartingScreen from './src/screens/StartingScreen';
+import StartingScreen from './src/screens/AuthorizationScreens/StartingScreen';
 import StackNavigation from './src/navigation/StackNavigation';
 
 const App = () => {

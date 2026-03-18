@@ -11,9 +11,9 @@ import {
 import React, { useRef } from 'react'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
-import InputField from '../components/InputField'
-import { Colors } from '../theme/Colors'
-import SubmitBtn from '../components/SubmitBtn'
+import InputField from '../../components/InputField'
+import { Colors } from '../../theme/Colors'
+import SubmitBtn from '../../components/SubmitBtn'
 
 import { Formik } from 'formik'
 import * as Yup from 'yup'
@@ -58,7 +58,7 @@ const RegisterScreen = ({ navigation }) => {
 
      <View style={styles.circleView}>
       <Image
-       source={require('../assets/bootsplash.png')}
+       source={require('../../assets/bootsplash.png')}
        style={styles.circleImage}
       />
      </View>
