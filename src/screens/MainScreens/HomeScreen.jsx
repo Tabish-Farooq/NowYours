@@ -59,83 +59,99 @@ const HomeScreen = () => {
   }
 
   return (
-    <ScrollView
-      style={styles.mainView}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 40 }}
-    >
+    <View style={styles.container}>
 
-      {/* Header */}
-      <View style={styles.addressBar}>
-        <View style={styles.location}>
-          <MaterialIcons name="location-on" color={Colors.primary} size={24} />
-          <Text style={styles.addressTxt}>Aligarh</Text>
-          <AntDesign name="down" color="#999" size={10} style={styles.chevron} />
+      <ScrollView
+        style={styles.mainView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 90 }}
+      >
+
+        {/* Header */}
+        <View style={styles.addressBar}>
+          <View style={styles.location}>
+            <MaterialIcons name="location-on" color={Colors.primary} size={24} />
+            <Text style={styles.addressTxt}>Aligarh</Text>
+            <AntDesign name="down" color="#999" size={10} style={styles.chevron} />
+          </View>
+
+          <View style={styles.bell}>
+            <Fontisto name="bell" color="#222" size={17} />
+          </View>
         </View>
 
-        <View style={styles.bell}>
-          <Fontisto name="bell" color="#222" size={17} />
+        {/* Search */}
+        <View style={styles.searchWrapper}>
+          <InputField
+            placeholder="Search books, courses..."
+            icon="search-outline"
+          />
         </View>
-      </View>
 
-      {/* Search */}
-      <View style={styles.searchWrapper}>
-        <InputField
-          placeholder="Search books, courses..."
-          icon="search-outline"
+        {/* Banner */}
+        <TouchableOpacity activeOpacity={0.6} style={styles.bannerWrapper}>
+          <Image source={Explore} style={styles.exploreImage} />
+        </TouchableOpacity>
+
+        {/* Popular Categories */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Popular Categories</Text>
+        </View>
+
+        <FlatList
+          data={PopularCategoriesData}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderItem}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
         />
-      </View>
 
-      {/* Banner */}
-      <TouchableOpacity activeOpacity={0.6} style={styles.bannerWrapper}>
-        <Image source={Explore} style={styles.exploreImage} />
+        {/* Divider */}
+        <View style={styles.divider} />
+
+        {/* Recommended */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Recommended For You</Text>
+
+          <TouchableOpacity activeOpacity={0.6} style={styles.seeAllBtn}>
+            <Text style={styles.seeAllTxt}>See All</Text>
+            <AntDesign name="arrowright" color="#4CAF50" size={13} />
+          </TouchableOpacity>
+        </View>
+
+        <FlatList
+          data={RecommendedData}
+          keyExtractor={(item) => item.id}
+          renderItem={renderRecommendedItem}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
+        />
+
+      </ScrollView>
+
+      {/* FAB */}
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => console.log('Add Item pressed')}
+        style={styles.fab}
+      >
+        <AntDesign name="plus" color="#fff" size={24} />
       </TouchableOpacity>
 
-      {/* Popular Categories */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Popular Categories</Text>
-
-        
-      </View>
-
-      <FlatList
-        data={PopularCategoriesData}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
-      />
-
-      {/* Divider */}
-      <View style={styles.divider} />
-
-      {/* Recommended */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Recommended For You</Text>
-
-        <TouchableOpacity activeOpacity={0.6} style={styles.seeAllBtn}>
-          <Text style={styles.seeAllTxt}>See All</Text>
-          <AntDesign name="arrowright" color="#4CAF50" size={13} />
-        </TouchableOpacity>
-      </View>
-
-      <FlatList
-        data={RecommendedData}
-        keyExtractor={(item) => item.id}
-        renderItem={renderRecommendedItem}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
-      />
-
-    </ScrollView>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  mainView: {
+
+  container: {
+    flex: 1,
     backgroundColor: '#FAFAFA',
+  },
+
+  mainView: {
     flex: 1,
   },
 
@@ -317,6 +333,24 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
   },
+
+  fab: {
+    position: 'absolute',
+    bottom: 28,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: '#4CAF50',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 6,
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+  },
+
 })
 
 export default HomeScreen

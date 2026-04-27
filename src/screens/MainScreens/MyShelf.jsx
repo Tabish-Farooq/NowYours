@@ -1,4 +1,13 @@
-import { View, Text, StyleSheet, Dimensions, Image, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  FlatList,
+} from 'react-native';
 import React from 'react';
 import Octicons from 'react-native-vector-icons/Octicons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -6,222 +15,262 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { MyShelfRecordData } from '../../data/MyShelfRecordData';
 import { MyShelfData } from '../../data/MyShelfData';
-import SubmitBtn from '../../components/SubmitBtn';
 
-const { width, height } = Dimensions.get('window');
-const CARD_WIDTH = (width - 32 - 30) / 4;
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = (width - 48 - 36) / 4;
 
-const MyShelf = () => {
+const COLORS = {
+  bg: '#F6F7FB',
+  card: '#FFFFFF',
+  text: '#15181F',
+  subText: '#8A8FA3',
+  border: '#ECEEF4',
+  accent: '#4A6FE3',       // blue — primary CTA
+  accentLight: '#EEF2FD',
+  green: '#28A56C',
+  greenLight: '#E6F7F0',
+  muted: '#C2C6D4',
+};
 
-  const renderIcon = (lib, name, color) => {
-    if (lib === 'Ionicons') return <Ionicons name={name} color={color} size={20} />;
-    if (lib === 'Octicons') return <Octicons name={name} color={color} size={20} />;
-  };
+const renderIcon = (lib, name, color) => {
+  if (lib === 'Ionicons') return <Ionicons name={name} color={color} size={20} />;
+  if (lib === 'Octicons') return <Octicons name={name} color={color} size={20} />;
+  return null;
+};
 
-  const renderBookItem = (item) => (
-    <View key={item.id} style={styles.bookCard}>
-      <Image source={item.img} style={styles.bookImg} />
+// ─── Stat Card ───────────────────────────────────────────────────────────────
+const StatCard = ({ item }) => (
+  <View style={[styles.statCard, { width: CARD_WIDTH }]}>
+    <View style={[styles.statIcon, { backgroundColor: item.color + '18' }]}>
+      {renderIcon(item.lib, item.icon, item.color)}
+    </View>
+    <Text style={[styles.statCount, { color: item.color }]}>{item.count}</Text>
+    <Text style={styles.statLabel} numberOfLines={1}>{item.label}</Text>
+  </View>
+);
 
-      <View style={styles.bookInfo}>
+// ─── Book Card ────────────────────────────────────────────────────────────────
+const BookCard = ({ item }) => (
+  <TouchableOpacity activeOpacity={0.75} style={styles.bookCard}>
+    <Image source={item.img} style={styles.bookImg} />
 
-        {/* TOP: title + status + dots */}
-        <View style={styles.bookTopRow}>
-          <Text style={styles.bookTitle} numberOfLines={1}>{item.title}</Text>
-          <View style={styles.topRight}>
-            <View style={[styles.statusBadge, { backgroundColor: item.statusColor + '18' }]}>
-              <Text style={[styles.statusTxt, { color: item.statusColor }]}>{item.status}</Text>
-            </View>
-            <TouchableOpacity activeOpacity={0.6} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Entypo name="dots-three-horizontal" color="#BBBBBB" size={18} />
-            </TouchableOpacity>
+    <View style={styles.bookBody}>
+      {/* Title row */}
+      <View style={styles.bookTitleRow}>
+        <Text style={styles.bookTitle} numberOfLines={1}>{item.title}</Text>
+        <TouchableOpacity
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          activeOpacity={0.6}
+        >
+          <Entypo name="dots-three-horizontal" color={COLORS.muted} size={16} />
+        </TouchableOpacity>
+      </View>
+
+      {/* Status badge */}
+      <View style={[styles.statusBadge, { backgroundColor: item.statusColor + '18' }]}>
+        <View style={[styles.statusDot, { backgroundColor: item.statusColor }]} />
+        <Text style={[styles.statusTxt, { color: item.statusColor }]}>{item.status}</Text>
+      </View>
+
+      {/* Footer */}
+      <View style={styles.bookFooter}>
+        <View>
+          <Text style={styles.bookPrice}>{item.price}</Text>
+          <View style={styles.dateRow}>
+            <AntDesign name="calendar" color={COLORS.muted} size={10} />
+            <Text style={styles.dateText}>{item.date}</Text>
           </View>
         </View>
 
-        {/* BOTTOM: price+date (left) | eye+chat (right) */}
-        <View style={styles.bookBottomRow}>
-          <View>
-            <Text style={styles.price}>{item.price}</Text>
-            <View style={styles.dateRow}>
-              <AntDesign name="calendar" color="#BBBBBB" size={11} />
-              <Text style={styles.dateText}>{item.date}</Text>
-            </View>
+        <View style={styles.statsRow}>
+          <View style={styles.statChip}>
+            <Ionicons name="eye-outline" color={COLORS.subText} size={13} />
+            <Text style={styles.statChipText}>{item.views}</Text>
           </View>
-
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Ionicons name="eye-outline" color="#999" size={16} />
-              <Text style={styles.statText}>{item.views}</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Ionicons name="chatbubble-outline" color="#999" size={15} />
-              <Text style={styles.statText}>{item.chats}</Text>
-            </View>
+          <View style={styles.statChip}>
+            <Ionicons name="chatbubble-outline" color={COLORS.subText} size={12} />
+            <Text style={styles.statChipText}>{item.chats}</Text>
           </View>
         </View>
-
       </View>
     </View>
-  );
+  </TouchableOpacity>
+);
 
+// ─── Main Screen ──────────────────────────────────────────────────────────────
+const MyShelf = () => {
   return (
-    <View style={styles.mainView}>
+    <View style={styles.screen}>
 
-      {/* ── FIXED TOP PART ── */}
+      {/* Sticky top section */}
       <View style={styles.topSection}>
 
         {/* Header */}
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.heading}>MyShelf</Text>
+            <Text style={styles.heading}>My Shelf</Text>
             <Text style={styles.subHeading}>Manage your listed books</Text>
           </View>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{MyShelfRecordData.length} Items</Text>
+          <View style={styles.itemsBadge}>
+            <Text style={styles.itemsBadgeText}>{MyShelfData.length} books</Text>
           </View>
         </View>
 
-        <View style={styles.divider} />
-
-        {/* Stats Cards */}
-        <View style={styles.row}>
+        {/* Stat Cards */}
+        <View style={styles.statsRow}>
           {MyShelfRecordData.map((item) => (
-            <View key={item.id} style={[styles.card, { width: CARD_WIDTH }]}>
-              <View style={[styles.iconBox, { backgroundColor: item.color + '20' }]}>
-                {renderIcon(item.lib, item.icon, item.color)}
-              </View>
-              <Text style={[styles.count, { color: item.color }]}>{item.count}</Text>
-              <Text style={styles.label}>{item.label}</Text>
-            </View>
+            <StatCard key={item.id} item={item} />
           ))}
         </View>
 
         {/* Add Button */}
-        <View style={styles.btnView}>
-          <SubmitBtn text="+ Add New Book" />
-        </View>
+        <TouchableOpacity activeOpacity={0.85} style={styles.addBtn}>
+          <AntDesign name="plus" color="#fff" size={16} />
+          <Text style={styles.addBtnText}>Add New Book</Text>
+        </TouchableOpacity>
 
-        {/* Section Header */}
+        {/* Section header */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Listed Books</Text>
           <TouchableOpacity activeOpacity={0.7} style={styles.seeAllBtn}>
             <Text style={styles.seeAllTxt}>See All</Text>
-            <AntDesign name="arrowright" color="#4CAF50" size={12} />
+            <AntDesign name="arrowright" color={COLORS.accent} size={11} />
           </TouchableOpacity>
         </View>
 
       </View>
 
-      {/* ── SCROLLABLE BOOKS ONLY ── */}
-      <ScrollView
-        style={styles.scrollArea}
+      {/* Scrollable book list */}
+      <FlatList
+        data={MyShelfData}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => <BookCard item={item} />}
+        contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-        nestedScrollEnabled={true}
-      >
-        {MyShelfData.map((item) => renderBookItem(item))}
-      </ScrollView>
+        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+      />
 
     </View>
   );
 };
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  mainView: {
+  screen: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: COLORS.bg,
   },
 
-  // Fixed top
+  // ── Top Section
   topSection: {
-    backgroundColor: '#ffffff',
+    backgroundColor: COLORS.card,
+    paddingBottom: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingHorizontal: 18,
+    paddingTop: 22,
+    marginBottom: 18,
   },
   heading: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: COLORS.text,
+    letterSpacing: -0.4,
   },
   subHeading: {
-    fontSize: 13,
-    color: '#999',
-    marginTop: 2,
+    fontSize: 12,
+    color: COLORS.subText,
+    marginTop: 3,
   },
-  badge: {
-    backgroundColor: '#E8F5E9',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+  itemsBadge: {
+    backgroundColor: COLORS.accentLight,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: 20,
   },
-  badgeText: {
-    fontSize: 11,
+  itemsBadgeText: {
+    fontSize: 12,
     fontWeight: '600',
-    color: '#4CAF50',
+    color: COLORS.accent,
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#F4F4F4',
-    marginHorizontal: 16,
-    marginTop: 14,
-    marginBottom: 14,
-  },
-  row: {
+
+  // ── Stat Cards
+  statsRow: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     gap: 10,
+    marginBottom: 16,
   },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
+  statCard: {
+    backgroundColor: COLORS.bg,
+    borderRadius: 14,
     alignItems: 'center',
     paddingVertical: 12,
-    borderWidth: 0.5,
-    borderColor: '#EBEBEB',
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
-  iconBox: {
-    width: 44,
-    height: 44,
+  statIcon: {
+    width: 40,
+    height: 40,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: 7,
   },
-  count: {
-    fontSize: 18,
+  statCount: {
+    fontSize: 17,
     fontWeight: '700',
     marginBottom: 2,
   },
-  label: {
-    fontSize: 11,
-    color: '#999',
+  statLabel: {
+    fontSize: 10,
+    color: COLORS.subText,
     textAlign: 'center',
+    paddingHorizontal: 4,
   },
-  btnView: {
-    marginTop: 16,
+
+  // ── Add Button
+  addBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.accent,
+    marginHorizontal: 18,
+    borderRadius: 13,
+    paddingVertical: 13,
+    gap: 8,
+    marginBottom: 20,
   },
+  addBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#fff',
+    letterSpacing: 0.2,
+  },
+
+  // ── Section Header
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    marginTop: 22,
-    marginBottom: 12,
+    paddingHorizontal: 18,
+    paddingBottom: 14,
   },
   sectionTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: COLORS.text,
   },
   seeAllBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
-    backgroundColor: '#F0FAF1',
+    gap: 4,
+    backgroundColor: COLORS.accentLight,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 20,
@@ -229,77 +278,79 @@ const styles = StyleSheet.create({
   seeAllTxt: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#4CAF50',
+    color: COLORS.accent,
   },
 
-  // Scrollable books area
-  scrollArea: {
-    flex: 1,
-    maxHeight: height * 0.45,
-  },
-  scrollContent: {
-    paddingBottom: 24,
-    gap: 12,
+  // ── Book List
+  listContent: {
+    paddingHorizontal: 18,
+    paddingTop: 14,
+    paddingBottom: 28,
   },
 
-  // Book card
+  // ── Book Card
   bookCard: {
     flexDirection: 'row',
-    marginHorizontal: 16,
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    borderWidth: 0.5,
-    borderColor: '#EBEBEB',
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     padding: 14,
-    gap: 12,
+    gap: 14,
     alignItems: 'flex-start',
   },
   bookImg: {
-    width: 70,
-    height: 90,
-    borderRadius: 8,
+    width: 68,
+    height: 88,
+    borderRadius: 10,
     resizeMode: 'cover',
+    backgroundColor: COLORS.bg,
   },
-  bookInfo: {
+  bookBody: {
     flex: 1,
     justifyContent: 'space-between',
+    gap: 8,
   },
-  bookTopRow: {
+  bookTitleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
   },
   bookTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: COLORS.text,
     flex: 1,
     marginRight: 8,
-  },
-  topRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    letterSpacing: -0.1,
   },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 9,
+    paddingVertical: 4,
     borderRadius: 20,
+    gap: 5,
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   statusTxt: {
     fontSize: 11,
     fontWeight: '600',
   },
-  bookBottomRow: {
+  bookFooter: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
     justifyContent: 'space-between',
+    alignItems: 'flex-end',
   },
-  price: {
+  bookPrice: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#4CAF50',
+    color: COLORS.green,
     marginBottom: 4,
   },
   dateRow: {
@@ -309,21 +360,20 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 11,
-    color: '#BBBBBB',
+    color: COLORS.muted,
   },
-  statsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  statItem: {
+  statChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    backgroundColor: COLORS.bg,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
-  statText: {
-    fontSize: 12,
-    color: '#999',
+  statChipText: {
+    fontSize: 11,
+    color: COLORS.subText,
     fontWeight: '500',
   },
 });

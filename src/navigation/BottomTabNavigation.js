@@ -4,7 +4,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import HomeScreen from '../screens/MainScreens/HomeScreen';
 import MyShelf from '../screens/MainScreens/MyShelf';
 import Favourites from '../screens/MainScreens/Favourites';
-import Category from '../screens/MainScreens/Category';
 import Account from '../screens/MainScreens/Account';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
@@ -17,22 +16,20 @@ const TabButton = (props) => (
 const TAB_ICONS = {
   'Home':       { focused: 'home',   unfocused: 'home-outline'   },
   'My Shelf':   { focused: 'book',   unfocused: 'book-outline'   },
-  'Category':   { focused: 'grid',   unfocused: 'grid-outline'   },
   'Favourites': { focused: 'heart',  unfocused: 'heart-outline'  },
   'Account':    { focused: 'person', unfocused: 'person-outline' },
 }
 
 // ✅ Animated icon component
 const AnimatedTabIcon = ({ name, color, focused }) => {
-
   const scaleAnim = React.useRef(new Animated.Value(1)).current
 
   React.useEffect(() => {
     Animated.spring(scaleAnim, {
       toValue: focused ? 1.25 : 1,
       useNativeDriver: true,
-      friction: 5,      // Spring ka bounce control
-      tension: 120,     // Spring ki speed control
+      friction: 5,
+      tension: 120,
     }).start()
   }, [focused])
 
@@ -58,6 +55,7 @@ const BottomTabNavigation = () => {
         tabBarIcon: ({ color, focused }) => {
           const icons = TAB_ICONS[route.name]
           const iconName = focused ? icons.focused : icons.unfocused
+
           return (
             <AnimatedTabIcon
               name={iconName}
@@ -73,7 +71,6 @@ const BottomTabNavigation = () => {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="My Shelf" component={MyShelf} />
-      <Tab.Screen name="Category" component={Category} />
       <Tab.Screen name="Favourites" component={Favourites} />
       <Tab.Screen name="Account" component={Account} />
     </Tab.Navigator>
